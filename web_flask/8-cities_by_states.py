@@ -15,13 +15,26 @@ def teardown_session(exception):
     storage.close()
 
 
-@app.route('/cities_by_states', strict_slashes=False)
-def display_html():
-    """ Function called with /states_list route """
+@app.route('/states/', strict_slashes=False)
+@app.route('/states/<id>', strict_slashes=False)
+def display_html(id=None):
+    """ Function called with /states route """
     states = storage.all(State)
-    return render_template('8-cities_by_states.html',
-                           Table="States",
-                           states=states)
+
+    if not id:
+        dict_to_html = {value.id: value.name for value in states.values()}
+        return render_template('7-states_list.html',
+                               Table="States",
+                               items=dict_to_html)
+
+    k = "State.{}".format(id)
+    if k in states:
+        return render_template('9-states.html',
+                               Table="State: {}".format(states[k].name),
+                               items=states[k])
+
+    return render_template('9-states.html',
+                           items=None)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
